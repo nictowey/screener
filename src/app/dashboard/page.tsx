@@ -1,184 +1,104 @@
 import * as React from 'react';
 import type { Metadata } from 'next';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import Grid from '@mui/material/Grid';
-import dayjs from 'dayjs';
 
 import { config } from '@/config';
-import { Budget } from '@/components/dashboard/overview/budget';
-import { LatestOrders } from '@/components/dashboard/overview/latest-orders';
-import { LatestProducts } from '@/components/dashboard/overview/latest-products';
-import { Sales } from '@/components/dashboard/overview/sales';
-import { TasksProgress } from '@/components/dashboard/overview/tasks-progress';
-import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
-import { TotalProfit } from '@/components/dashboard/overview/total-profit';
-import { Traffic } from '@/components/dashboard/overview/traffic';
+import { BreakoutLeaderboard } from '@/components/dashboard/overview/breakout-leaderboard';
+import { BreakoutScoreBreakdown } from '@/components/dashboard/overview/breakout-score-breakdown';
+import { BreakoutStatsCard } from '@/components/dashboard/overview/breakout-stats-card';
+import { getBreakoutOverview } from '@/services/breakout';
 
 export const metadata = { title: `Overview | Dashboard | ${config.site.name}` } satisfies Metadata;
 
-export default function Page(): React.JSX.Element {
+const integerFormatter = new Intl.NumberFormat('en-US');
+const compactFormatter = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
+const decimalFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+
+export default async function Page(): Promise<React.JSX.Element> {
+  const breakout = await getBreakoutOverview();
+  const { data, error, isFallback } = breakout;
+  const { stats, topSymbols, scoreBuckets } = data;
+
+  const highConvictionShare = stats.totalBreakouts
+    ? Math.round((stats.highConviction / stats.totalBreakouts) * 100)
+    : 0;
+
+  const statsCards = [
+    {
+      key: 'total-breakouts',
+      title: 'Total breakouts',
+      value: integerFormatter.format(stats.totalBreakouts),
+      caption: `${stats.highConviction} high-conviction setups`,
+      trend: highConvictionShare >= 50 ? 'up' : 'down',
+      trendValue: `${highConvictionShare}% HC`,
+    },
+    {
+      key: 'average-score',
+      title: 'Average score',
+      value: decimalFormatter.format(stats.averageScore),
+      caption: `Median ${decimalFormatter.format(stats.medianScore)}`,
+    },
+    {
+      key: 'new-highs',
+      title: '52-week highs',
+      value: integerFormatter.format(stats.newHighs),
+      caption: `${stats.watchlistCandidates} watchlist ready`,
+    },
+    {
+      key: 'breakout-volume',
+      title: 'Breakout volume',
+      value: compactFormatter.format(stats.totalVolume),
+      caption: 'Market breadth',
+      trend: stats.percentGreen >= 50 ? 'up' : 'down',
+      trendValue: `${decimalFormatter.format(stats.percentGreen)}% green`,
+    },
+  ] as const;
+
   return (
     <Grid container spacing={3}>
-      <Grid
-        size={{
-          lg: 3,
-          sm: 6,
-          xs: 12,
-        }}
-      >
-        <Budget diff={12} trend="up" sx={{ height: '100%' }} value="$24k" />
-      </Grid>
-      <Grid
-        size={{
-          lg: 3,
-          sm: 6,
-          xs: 12,
-        }}
-      >
-        <TotalCustomers diff={16} trend="down" sx={{ height: '100%' }} value="1.6k" />
-      </Grid>
-      <Grid
-        size={{
-          lg: 3,
-          sm: 6,
-          xs: 12,
-        }}
-      >
-        <TasksProgress sx={{ height: '100%' }} value={75.5} />
-      </Grid>
-      <Grid
-        size={{
-          lg: 3,
-          sm: 6,
-          xs: 12,
-        }}
-      >
-        <TotalProfit sx={{ height: '100%' }} value="$15k" />
-      </Grid>
+      {error ? (
+        <Grid size={{ xs: 12 }}>
+          <Alert severity={isFallback ? 'warning' : 'error'} variant="outlined">
+            <AlertTitle>{isFallback ? 'Using fallback data' : 'Unable to load breakout data'}</AlertTitle>
+            {error}
+          </Alert>
+        </Grid>
+      ) : null}
+      {statsCards.map((card) => (
+        <Grid
+          key={card.key}
+          size={{
+            lg: 3,
+            sm: 6,
+            xs: 12,
+          }}
+        >
+          <BreakoutStatsCard
+            caption={card.caption}
+            title={card.title}
+            trend={card.trend}
+            trendValue={card.trendValue}
+            value={card.value}
+          />
+        </Grid>
+      ))}
       <Grid
         size={{
           lg: 8,
           xs: 12,
         }}
       >
-        <Sales
-          chartSeries={[
-            { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
-            { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
-          ]}
-          sx={{ height: '100%' }}
-        />
+        <BreakoutLeaderboard generatedAt={data.generatedAt} symbols={topSymbols.slice(0, 10)} />
       </Grid>
       <Grid
         size={{
           lg: 4,
-          md: 6,
           xs: 12,
         }}
       >
-        <Traffic chartSeries={[63, 15, 22]} labels={['Desktop', 'Tablet', 'Phone']} sx={{ height: '100%' }} />
-      </Grid>
-      <Grid
-        size={{
-          lg: 4,
-          md: 6,
-          xs: 12,
-        }}
-      >
-        <LatestProducts
-          products={[
-            {
-              id: 'PRD-005',
-              name: 'Soja & Co. Eucalyptus',
-              image:
-                'https://images.unsplash.com/photo-1585386959984-a4155220cf05?auto=format&fit=crop&w=96&h=96&q=80',
-              updatedAt: dayjs().subtract(18, 'minutes').subtract(5, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-004',
-              name: 'Necessaire Body Lotion',
-              image:
-                'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=96&h=96&q=80',
-              updatedAt: dayjs().subtract(41, 'minutes').subtract(3, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-003',
-              name: 'Ritual of Sakura',
-              image:
-                'https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=96&h=96&q=80',
-              updatedAt: dayjs().subtract(5, 'minutes').subtract(3, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-002',
-              name: 'Lancome Rouge',
-              image:
-                'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=96&h=96&q=80&sat=-20',
-              updatedAt: dayjs().subtract(23, 'minutes').subtract(2, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-001',
-              name: 'Erbology Aloe Vera',
-              image:
-                'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=96&h=96&q=80',
-              updatedAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-          ]}
-          sx={{ height: '100%' }}
-        />
-      </Grid>
-      <Grid
-        size={{
-          lg: 8,
-          md: 12,
-          xs: 12,
-        }}
-      >
-        <LatestOrders
-          orders={[
-            {
-              id: 'ORD-007',
-              customer: { name: 'Ekaterina Tankova' },
-              amount: 30.5,
-              status: 'pending',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-006',
-              customer: { name: 'Cao Yu' },
-              amount: 25.1,
-              status: 'delivered',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-004',
-              customer: { name: 'Alexa Richardson' },
-              amount: 10.99,
-              status: 'refunded',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-003',
-              customer: { name: 'Anje Keizer' },
-              amount: 96.43,
-              status: 'pending',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-002',
-              customer: { name: 'Clarke Gillebert' },
-              amount: 32.54,
-              status: 'delivered',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-001',
-              customer: { name: 'Adam Denisov' },
-              amount: 16.76,
-              status: 'delivered',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-          ]}
-          sx={{ height: '100%' }}
-        />
+        <BreakoutScoreBreakdown buckets={scoreBuckets} />
       </Grid>
     </Grid>
   );
