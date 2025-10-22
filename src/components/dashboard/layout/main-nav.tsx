@@ -7,20 +7,41 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import { useRouter } from 'next/navigation';
 import { BellIcon } from '@phosphor-icons/react/dist/ssr/Bell';
 import { ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 import { UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
 
 import { usePopover } from '@/hooks/use-popover';
+import { paths } from '@/paths';
+import { TickerSearchDialog } from '@/components/dashboard/search/ticker-search';
 
 import { MobileNav } from './mobile-nav';
 import { UserPopover } from './user-popover';
 
 export function MainNav(): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
+  const [openSearch, setOpenSearch] = React.useState<boolean>(false);
 
   const userPopover = usePopover<HTMLDivElement>();
+  const theme = useTheme();
+  const router = useRouter();
+  const mdUp = useMediaQuery(theme.breakpoints.up('md'));
+
+  const handleOpenSearch = React.useCallback(() => {
+    if (mdUp) {
+      setOpenSearch(true);
+    } else {
+      router.push(paths.dashboard.stocks);
+    }
+  }, [mdUp, router]);
+
+  const handleCloseSearch = React.useCallback(() => {
+    setOpenSearch(false);
+  }, []);
 
   return (
     <React.Fragment>
@@ -49,7 +70,7 @@ export function MainNav(): React.JSX.Element {
               <ListIcon />
             </IconButton>
             <Tooltip title="Search">
-              <IconButton>
+              <IconButton onClick={handleOpenSearch}>
                 <MagnifyingGlassIcon />
               </IconButton>
             </Tooltip>
@@ -77,6 +98,7 @@ export function MainNav(): React.JSX.Element {
         </Stack>
       </Box>
       <UserPopover anchorEl={userPopover.anchorRef.current} onClose={userPopover.handleClose} open={userPopover.open} />
+      <TickerSearchDialog onClose={handleCloseSearch} open={openSearch} />
       <MobileNav
         onClose={() => {
           setOpenNav(false);
