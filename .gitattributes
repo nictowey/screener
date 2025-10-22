@@ -1,0 +1,10 @@
+* text=auto eol=lf
+
+# Treat vector assets as text for meaningful diffs
+*.svg text eol=lf
+
+# Common binary assets (kept out of repo)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
