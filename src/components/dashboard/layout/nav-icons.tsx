@@ -1,4 +1,5 @@
 import type { Icon } from '@phosphor-icons/react/dist/lib/types';
+import { ChartLineUpIcon } from '@phosphor-icons/react/dist/ssr/ChartLineUp';
 import { ChartPieIcon } from '@phosphor-icons/react/dist/ssr/ChartPie';
 import { GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
 import { PlugsConnectedIcon } from '@phosphor-icons/react/dist/ssr/PlugsConnected';
@@ -8,6 +9,7 @@ import { XSquare } from '@phosphor-icons/react/dist/ssr/XSquare';
 
 export const navIcons = {
   'chart-pie': ChartPieIcon,
+  'chart-line-up': ChartLineUpIcon,
   'gear-six': GearSixIcon,
   'plugs-connected': PlugsConnectedIcon,
   'x-square': XSquare,
