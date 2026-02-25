@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 
 import CriteriaPanel from '@/components/criteria-panel';
 import Header from '@/components/header';
+import InstallPrompt from '@/components/install-prompt';
 import PicksTable from '@/components/picks-table';
 import type { StockPick } from '@/lib/screener';
 
@@ -53,6 +54,7 @@ export default function HomePage() {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Header />
       <Container maxWidth="xl" sx={{ py: 4 }}>
+        <InstallPrompt />
         {/* Title section */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" fontWeight={700} gutterBottom>
