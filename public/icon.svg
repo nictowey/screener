@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0a0e17"/>
+  <g transform="translate(80, 80)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Grid lines -->
+    <line x1="0" y1="352" x2="352" y2="352" stroke="#1e293b" stroke-width="2"/>
+    <line x1="0" y1="264" x2="352" y2="264" stroke="#1e293b" stroke-width="1.5"/>
+    <line x1="0" y1="176" x2="352" y2="176" stroke="#1e293b" stroke-width="1.5"/>
+    <line x1="0" y1="88" x2="352" y2="88" stroke="#1e293b" stroke-width="1.5"/>
+    <!-- Trend line (upward) -->
+    <polyline points="16,300 80,270 140,240 200,190 250,130 310,60 340,30" stroke="#4fc3f7" stroke-width="16" fill="none"/>
+    <!-- Arrow head -->
+    <polyline points="300,28 340,30 338,70" stroke="#4fc3f7" stroke-width="12" fill="none"/>
+    <!-- Bar chart hints -->
+    <rect x="30" y="280" width="32" height="72" rx="4" fill="#4fc3f7" opacity="0.25"/>
+    <rect x="90" y="250" width="32" height="102" rx="4" fill="#4fc3f7" opacity="0.3"/>
+    <rect x="150" y="210" width="32" height="142" rx="4" fill="#4fc3f7" opacity="0.35"/>
+    <rect x="210" y="170" width="32" height="182" rx="4" fill="#4fc3f7" opacity="0.4"/>
+    <rect x="270" y="120" width="32" height="232" rx="4" fill="#4fc3f7" opacity="0.45"/>
+  </g>
+</svg>
